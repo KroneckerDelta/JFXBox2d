@@ -45,13 +45,23 @@ public class WorldView extends Parent {
             }
         };
         KeyFrame keyFrame = new KeyFrame(duration, onFinished, null, null);
-        timeline.getKeyFrames().add(keyFrame);      
+        timeline.getKeyFrames().add(keyFrame);
     }
 
     private void initCamera(World world, double width, double height) {
         Vec2 min = WorldMetrics.min(world);
         Vec2 max = WorldMetrics.max(world);
-        this.camera = new WorldCam(new Vec2(-min.x,5.71f),350);
+        float worldWidth = max.x - min.x;
+        float worldHeight = max.y - min.y;
+        float scaleX = (float) width / worldWidth;
+        float scaleY = (float) height / worldHeight;
+        float scale = scaleX > scaleY ? scaleY : scaleX; // fit screen
+        scale = scale * .8f; // add a little extra space 
+        float centerX = min.x + (worldWidth / 2);
+        float centerY = min.y + (worldHeight / 2);
+        float targetX = ((float) width / 2) / scale;
+        float targetY = ((float) height / 2) / scale;
+        this.camera = new WorldCam(new Vec2(targetX - centerX, max.y + (targetY -centerY)), scale);
     }
 
     public void init() {
@@ -73,7 +83,6 @@ public class WorldView extends Parent {
     public void play() {
         timeline.play();
     }
-    
     boolean stationary = false;
 
     public void updateBodies() {
@@ -91,28 +100,28 @@ public class WorldView extends Parent {
             if (n != null && n.getParent() == null) {
                 addChild(n, nextBody);
             }/*
-            if (followMe != null && followMe.equals(nextBody.getUserData())) {
-                double layoutY = n.getLayoutY();
-                double scaleY = getScaleY();
-                double maxVisibleY = getHeight() / scaleY;
-                double distanceFromLowerBound = getHeight() - layoutY;
-                if (distanceFromLowerBound > getHeight()) {
-                    double newScale = (getHeight() / distanceFromLowerBound);
-                    setScaleX(newScale);
-                    setScaleY(newScale);
-                    maxVisibleY = getHeight() / newScale;
-                    double d = getHeight() - (newScale * getHeight());
-                    setTranslateY(d / 2);
-                }
-                double layoutX = n.getLayoutX();
-                double width = getScene().getWindow().getWidth();
-                double transX = ((width / 2) - layoutX) / getScaleX();
-                if (transX < 0) {
-                    if (getTranslateX() != transX) {
-                        setTranslateX(transX);
-                    }
-                }
-            }*/
+             if (followMe != null && followMe.equals(nextBody.getUserData())) {
+             double layoutY = n.getLayoutY();
+             double scaleY = getScaleY();
+             double maxVisibleY = getHeight() / scaleY;
+             double distanceFromLowerBound = getHeight() - layoutY;
+             if (distanceFromLowerBound > getHeight()) {
+             double newScale = (getHeight() / distanceFromLowerBound);
+             setScaleX(newScale);
+             setScaleY(newScale);
+             maxVisibleY = getHeight() / newScale;
+             double d = getHeight() - (newScale * getHeight());
+             setTranslateY(d / 2);
+             }
+             double layoutX = n.getLayoutX();
+             double width = getScene().getWindow().getWidth();
+             double transX = ((width / 2) - layoutX) / getScaleX();
+             if (transX < 0) {
+             if (getTranslateX() != transX) {
+             setTranslateX(transX);
+             }
+             }
+             }*/
             nextBody = nextBody.getNext();
         }
     }

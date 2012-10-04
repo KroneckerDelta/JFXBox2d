@@ -35,11 +35,8 @@ public class TestApp extends Application {
         World world = new World(new Vec2(0, -7));
         Body circle = new CircleShapeBuilder(world).position(4, 6).type(BodyType.DYNAMIC).radius(1).density(1).restitution(0.5f).build();
         new BoxBuilder(world).type(BodyType.STATIC).position(4, 0).halfHeight(1).halfWidth(5).density(1).build();
-        WorldView worldView = new WorldView(world, 800, 507);
-        WorldCam camera = worldView.getCamera();
-        camera.setScale(50);
-        camera.setTranslate(new Vec2(2,6));
-        Scene scene = new Scene(worldView, 800, 507);
+        WorldView worldView = new WorldView(world, 800, 800);
+        Scene scene = new Scene(worldView, 800, 800);
         primaryStage.setScene(scene);
         primaryStage.show();
         worldView.play();
