@@ -11,6 +11,5 @@ import org.jbox2d.collision.shapes.ChainShape;
  *
  * @author eppleton
  */
-public interface ChainProvider<n extends Node> extends NodeProvider<ChainShape, n> {
-    
+public interface ChainProvider<n extends Node> extends NodeProvider<ChainShape, n> {   
 }

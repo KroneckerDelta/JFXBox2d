@@ -4,14 +4,12 @@
  */
 package de.eppleton.jbox2d.test;
 
-import de.eppleton.jbox2d.rendering.WorldCam;
+import de.eppleton.jbox2d.rendering.Palette;
 import de.eppleton.jbox2d.rendering.WorldView;
-import javafx.animation.Interpolator;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.shape.CircleBuilder;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.jbox2d.builders.BoxBuilder;
 import org.jbox2d.builders.CircleShapeBuilder;
 import org.jbox2d.common.Vec2;
@@ -36,10 +34,16 @@ public class TestApp extends Application {
         Body circle = new CircleShapeBuilder(world).position(4, 6).type(BodyType.DYNAMIC).radius(1).density(1).restitution(0.5f).build();
         new BoxBuilder(world).type(BodyType.STATIC).position(4, 0).halfHeight(1).halfWidth(5).density(1).build();
         WorldView worldView = new WorldView(world, 800, 800);
-        Scene scene = new Scene(worldView, 800, 800);
+
+       BorderPane borderPane = new BorderPane();
+
+        borderPane.setCenter(worldView);
+        borderPane.setRight(new Palette(worldView));
+        Scene scene = new Scene(borderPane, 800, 800);
         primaryStage.setScene(scene);
+//        ScenicView.show(scene);
         primaryStage.show();
-        worldView.play();
+       // worldView.play();
         worldView.updateBodies();
     }
 }

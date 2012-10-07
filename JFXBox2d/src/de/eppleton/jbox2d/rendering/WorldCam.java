@@ -4,10 +4,6 @@
  */
 package de.eppleton.jbox2d.rendering;
 
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Transform;
-import javafx.scene.transform.Translate;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -54,6 +50,14 @@ public class WorldCam {
 
     public void setTranslate(Vec2 translate) {
         this.translate = translate;
+    }
+
+    Vec2 screenToWorld(Vec2 screen) {
+        System.out.println("screen "+screen);
+        Vec2 worldVec = new Vec2();
+        worldVec.x = (screen.x /  scale ) - translate.x;
+        worldVec.y = (-screen.y / scale) + translate.y;
+        return worldVec;
     }
 
     

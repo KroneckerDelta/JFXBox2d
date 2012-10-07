@@ -11,7 +11,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.RectangleBuilder;
 import javafx.util.Duration;
+import org.jbox2d.builders.BoxBuilder;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -28,10 +35,18 @@ public class WorldView extends Parent {
     private WorldCam camera;
     private World world;
     private Timeline timeline;
-    private Object followMe;
     private final double frames = 60d;
 
     public WorldView(final World world, double width, double height) {
+        enableDragAndDrop();
+        Rectangle build = RectangleBuilder
+                .create()
+                .height(height)
+                .width(width)
+                .fill(Color.TRANSPARENT)
+                .build();
+        getChildren().add(build);
+        
         this.world = world;
         initCamera(world, width, height);
         getStyleClass().add("background");
@@ -44,10 +59,14 @@ public class WorldView extends Parent {
                 updateBodies();
             }
         };
+        
         KeyFrame keyFrame = new KeyFrame(duration, onFinished, null, null);
         timeline.getKeyFrames().add(keyFrame);
+        
     }
 
+    
+    
     private void initCamera(World world, double width, double height) {
         Vec2 min = WorldMetrics.min(world);
         Vec2 max = WorldMetrics.max(world);
@@ -61,16 +80,82 @@ public class WorldView extends Parent {
         float centerY = min.y + (worldHeight / 2);
         float targetX = ((float) width / 2) / scale;
         float targetY = ((float) height / 2) / scale;
-        this.camera = new WorldCam(new Vec2(targetX - centerX, max.y + (targetY -centerY)), scale);
+        this.camera = new WorldCam(new Vec2(targetX - centerX, max.y + (targetY - centerY)), scale);
+    }
+
+    private void enableDragAndDrop() {
+        setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                /* data is dragged over the target */
+                System.out.println("onDragOver");
+
+                /* accept it only if it is  not dragged from the same node 
+                 * and if it has a string data */
+                if (event.getGestureSource() != this
+                        && event.getDragboard().hasString()) {
+                    /* allow for both copying and moving, whatever user chooses */
+                    event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                }
+
+                event.consume();
+            }
+        });
+
+        setOnDragEntered(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                /* the drag-and-drop gesture entered the target */
+                System.out.println("onDragEntered");
+                /* show to the user that it is an actual gesture target */
+                if (event.getGestureSource() != this
+                        && event.getDragboard().hasString()) {
+                }
+
+                event.consume();
+            }
+        });
+
+        setOnDragExited(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                /* mouse moved away, remove the graphical cues */
+
+
+                event.consume();
+            }
+        });
+
+        setOnDragDropped(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                /* data dropped */
+                System.out.println("onDragDropped");
+                /* if there is a string data on dragboard, read it and use it */
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+              
+                    Vec2 vec2 = new Vec2((float) event.getSceneX(), (float) event.getSceneY());
+                    Vec2 targetPos = getCamera().screenToWorld(vec2);
+                    new BoxBuilder(world).type(BodyType.DYNAMIC)
+                            .position(targetPos)
+                            .halfHeight(.1f)
+                            .halfWidth(.1f)
+                            .density(.2f)
+                            .build();
+                    updateBodies();
+                    //setText(db.getString());
+                    success = true;
+                
+                /* let the source know whether the string was successfully 
+                 * transferred and used */
+                event.setDropCompleted(success);
+
+                event.consume();
+            }
+        });
     }
 
     public void init() {
         updateBodies();
     }
 
-    public void follow(Object toFollow) {
-        this.followMe = toFollow;
-    }
 
     public void pause() {
         timeline.pause();
