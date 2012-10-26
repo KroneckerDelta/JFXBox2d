@@ -19,21 +19,24 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.util.Duration;
 import org.jbox2d.builders.BoxBuilder;
+import org.jbox2d.callbacks.DestructionListener;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.Fixture;
 import org.jbox2d.dynamics.World;
+import org.jbox2d.dynamics.joints.Joint;
 
 /**
  *
  * @author eppleton
  */
-public class WorldView extends Parent {
+public class WorldView extends Parent implements DestructionListener {
 
     private HashMap<Body, Node> nodesForBodies = new HashMap<Body, Node>();
     private WorldCam camera;
-    private World world;
+    protected World world;
     private Timeline timeline;
     private final double frames = 60d;
 
@@ -46,7 +49,7 @@ public class WorldView extends Parent {
                 .fill(Color.TRANSPARENT)
                 .build();
         getChildren().add(build);
-        
+
         this.world = world;
         initCamera(world, width, height);
         getStyleClass().add("background");
@@ -55,18 +58,16 @@ public class WorldView extends Parent {
         Duration duration = Duration.seconds(1d / frames);
         EventHandler<ActionEvent> onFinished = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent t) {
-                world.step(1.0f / 60.f, 1, 1);
+                world.step(1.0f / (float) (frames * 3), 1, 1);
                 updateBodies();
             }
         };
-        
+
         KeyFrame keyFrame = new KeyFrame(duration, onFinished, null, null);
         timeline.getKeyFrames().add(keyFrame);
-        
+
     }
 
-    
-    
     private void initCamera(World world, double width, double height) {
         Vec2 min = WorldMetrics.min(world);
         Vec2 max = WorldMetrics.max(world);
@@ -130,19 +131,19 @@ public class WorldView extends Parent {
                 /* if there is a string data on dragboard, read it and use it */
                 Dragboard db = event.getDragboard();
                 boolean success = false;
-              
-                    Vec2 vec2 = new Vec2((float) event.getSceneX(), (float) event.getSceneY());
-                    Vec2 targetPos = getCamera().screenToWorld(vec2);
-                    new BoxBuilder(world).type(BodyType.DYNAMIC)
-                            .position(targetPos)
-                            .halfHeight(.1f)
-                            .halfWidth(.1f)
-                            .density(.2f)
-                            .build();
-                    updateBodies();
-                    //setText(db.getString());
-                    success = true;
-                
+
+                Vec2 vec2 = new Vec2((float) event.getSceneX(), (float) event.getSceneY());
+                Vec2 targetPos = getCamera().screenToWorld(vec2);
+                new BoxBuilder(world).type(BodyType.DYNAMIC)
+                        .position(targetPos)
+                        .halfHeight(.1f)
+                        .halfWidth(.1f)
+                        .density(.2f)
+                        .build();
+                updateBodies();
+                //setText(db.getString());
+                success = true;
+
                 /* let the source know whether the string was successfully 
                  * transferred and used */
                 event.setDropCompleted(success);
@@ -156,7 +157,6 @@ public class WorldView extends Parent {
         updateBodies();
     }
 
-
     public void pause() {
         timeline.pause();
     }
@@ -168,6 +168,7 @@ public class WorldView extends Parent {
     public void play() {
         timeline.play();
     }
+    
     boolean stationary = false;
 
     public void updateBodies() {
@@ -229,11 +230,21 @@ public class WorldView extends Parent {
 
     public void addChild(Node n, Body nextBody) {
         // check if this node is new
-        getChildren().add(n);
+        Node get = nodesForBodies.get(nextBody);
+        if (get== null)getChildren().add(n);
         nodesForBodies.put(nextBody, n);
     }
 
     public Node getNodeForBody(Body b) {
         return nodesForBodies.get(b);
+    }
+
+    @Override
+    public void sayGoodbye(Joint joint) {
+    }
+
+    @Override
+    public void sayGoodbye(Fixture fixture) {
+        removeBody(fixture.m_body);
     }
 }

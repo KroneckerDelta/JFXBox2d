@@ -4,11 +4,11 @@
  */
 package de.eppleton.jbox2d.test;
 
-import de.eppleton.jbox2d.rendering.Palette;
 import de.eppleton.jbox2d.rendering.WorldView;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 import org.jbox2d.builders.BoxBuilder;
 import org.jbox2d.builders.CircleShapeBuilder;
@@ -35,11 +35,9 @@ public class TestApp extends Application {
         new BoxBuilder(world).type(BodyType.STATIC).position(4, 0).halfHeight(1).halfWidth(5).density(1).build();
         WorldView worldView = new WorldView(world, 800, 800);
 
-       BorderPane borderPane = new BorderPane();
-
-        borderPane.setCenter(worldView);
-        borderPane.setRight(new Palette(worldView));
-        Scene scene = new Scene(borderPane, 800, 800);
+       
+        Scene scene = new Scene(worldView, 800, 800);
+        worldView.addChild(new Palette(worldView));
         primaryStage.setScene(scene);
 //        ScenicView.show(scene);
         primaryStage.show();

@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.eppleton.jbox2d.rendering;
+package de.eppleton.jbox2d.test;
 
+import de.eppleton.jbox2d.rendering.WorldView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -22,6 +23,7 @@ import javafx.scene.layout.Region;
 public class Palette extends HBox {
 
     public Palette(final WorldView view) {
+       
         Button button = new Button("Start");
         button.setOnAction(new EventHandler<ActionEvent>(){
 
@@ -32,7 +34,8 @@ public class Palette extends HBox {
         });
         
         getChildren().add(button);
-           Button stop = new Button("Stop");
+        
+        Button stop = new Button("Stop");
         stop.setOnAction(new EventHandler<ActionEvent>(){
 
             @Override
